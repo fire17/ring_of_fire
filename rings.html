@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Ring Fire</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #000;
+        }
+        .circle-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .circle {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            filter: url(#wavy);
+        }
+        .circle::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            right: 40px;
+            bottom: 40px;
+            border: 10px solid #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #fff, inset 0 0 20px #fff;
+            animation: anima 5s linear infinite, glow 5s linear infinite;
+        }
+        @keyframes anima {
+            0% {
+                box-shadow: 0 0 20px #fff, inset 0 0 20px #fff;
+                filter: hue-rotate(0deg);
+            }
+            100% {
+                box-shadow: 0 0 20px #fff, inset 0 0 20px #fff;
+                filter: hue-rotate(360deg);
+            }
+        }
+        @keyframes glow {
+            0%, 100% {
+                border-color: #fff;
+                box-shadow: 0 0 20px #fff, inset 0 0 20px #fff;
+            }
+            50% {
+                border-color: #ff0000;
+                box-shadow: 0 0 30px #ff0000, inset 0 0 30px #ff0000;
+            }
+        }
+        svg {
+            width: 0;
+            height: 0;
+        }
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        label {
+            color: #fff;
+            margin-bottom: 5px;
+        }
+        input[type="range"] {
+            width: 200px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="circle-container">
+        <div class="circle"></div>
+
+        <svg width="200" height="200">
+            <circle cx="100" cy="100" r="90" stroke="#fff" stroke-width="20" fill="transparent" />
+            <filter id="wavy">
+                <feTurbulence x="0" y="0" baseFrequency="0.02" numOctaves="5" seed="2">
+                    <animate
+                        attributeName="baseFrequency"
+                        dur="10s"
+                        values="0.003;0.05;0.003"
+                        repeatCount="indefinite"
+                    ></animate>
+					<animate
+                        attributeName="seed"
+                        dur="2s"
+                        values="9;9;"
+                        repeatCount="indefinite"
+                    ></animate>
+                </feTurbulence>
+                <feDisplacementMap in="SourceGraphic" scale="30"></feDisplacementMap>
+            </filter>
+        </svg>
+    </div>
+
+    <div class="slider-container">
+        <label for="blur-slider">Blur:</label>
+        <input type="range" id="blur-slider" min="0" max="5" step="0.1" value="1">
+        <label for="hue-slider">Hue Rotation:</label>
+        <input type="range" id="hue-slider" min="0" max="360" step="1" value="0">
+        <label for="ring-size-slider">Ring Size:</label>
+        <input type="range" id="ring-size-slider" min="50" max="300" step="1" value="90">
+        <label for="ring-thickness-slider">Ring Thickness:</label>
+        <input type="range" id="ring-thickness-slider" min="10" max="50" step="1" value="20">
+        <label for="base-freq-slider">Base Frequency Multiplier:</label>
+        <input type="range" id="base-freq-slider" min="0.01" max="0.1" step="0.01" value="0.02">
+    </div>
+
+    <script>
+        const blurSlider = document.getElementById('blur-slider');
+        const hueSlider = document.getElementById('hue-slider');
+        const ringSizeSlider = document.getElementById('ring-size-slider');
+        const ringThicknessSlider = document.getElementById('ring-thickness-slider');
+        const baseFreqSlider = document.getElementById('base-freq-slider');
+        const circle = document.querySelector('.circle');
+
+        blurSlider.addEventListener('input', updateFilters);
+        hueSlider.addEventListener('input', updateFilters);
+        ringSizeSlider.addEventListener('input', updateFilters);
+        ringThicknessSlider.addEventListener('input', updateFilters);
+        baseFreqSlider.addEventListener('input', updateFilters);
+
+        function updateFilters() {
+            const blurValue = blurSlider.value;
+            const hueValue = hueSlider.value;
+            const ringSize = ringSizeSlider.value;
+            const ringThickness = ringThicknessSlider.value;
+            const baseFreqMultiplier = baseFreqSlider.value;
+
+            circle.style.filter = `url(#wavy) blur(${blurValue}px) hue-rotate(${hueValue}deg)`;
+            circle.style.width = `${ringSize}px`;
+            circle.style.height = `${ringSize}px`;
+            circle.querySelector('::before').style.borderWidth = `${ringThickness}px`;
+            circle.querySelector('::before').style.width = `calc(100% - ${2 * ringThickness}px)`;
+            circle.querySelector('::before').style.height = `calc(100% - ${2 * ringThickness}px)`;
+            document.querySelector('#wavy feTurbulence').setAttribute('baseFrequency', baseFreqMultiplier);
+        }
+    </script>
+</body>
+</html>
